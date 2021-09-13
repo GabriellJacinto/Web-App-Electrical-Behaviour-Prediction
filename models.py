@@ -1,7 +1,7 @@
 import pandas as pd
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.preprocessing import StandardScaler
-import pickle
+from joblib import dump
 
 df = pd.read_csv('clean_data.csv', index_col='Unnamed: 0')
 
@@ -27,6 +27,6 @@ rf_tplh = RandomForestRegressor(n_estimators=150,max_depth=10,random_state=seed)
 rf_tplh.fit(X_sc, y.tplh)
 
 
-pickle.dump(rf_iint, open('iint.pkl', 'wb'))
-pickle.dump(rf_tphl, open('tphl.pkl', 'wb'))
-pickle.dump(rf_tplh, open('tplh.pkl', 'wb'))
+dump(rf_iint, 'iint.gz', compress=3)
+dump(rf_tphl, 'tphl.gz', compress=3)
+dump(rf_tplh, 'tplh.gz', compress=3)
