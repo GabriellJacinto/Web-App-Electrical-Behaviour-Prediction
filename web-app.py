@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 from joblib import load
-from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import StandardScaler, MinMaxScaler
 
 st.write("""
 # Electrical Characterization Prediction
@@ -52,23 +52,28 @@ else:
     display['length']=display['length']*(10**9)
     st.write(display)
 
-scaler = StandardScaler().fit(df)
-df_sc = scaler.transform(df)
+
+scaler_SC = load('scaler_SC.gz')
+df_sc = scaler_SC.transform(df)
+scaler_NOR = load('scaler_NOR.gz')
 
 iint_clf = load('iint.gz')
 iint_pred = iint_clf.predict(df_sc)
-st.subheader('Energy Prediction')
-st.write(iint_pred)
-st.write(((iint_pred+data.iint.min())*(data.iint.max()-data.iint.min()))*(10**14))
 
 tphl_clf = load('tphl.gz')
 tphl_pred = tphl_clf.predict(df_sc)
-st.subheader('High-Low Propagation Prediction')
-st.write(tphl_pred)
-st.write(((tphl_pred+data.tphl.min())*(data.tphl.max()-data.tphl.min()))*(10**12))
 
 tplh_clf = load('tplh.gz')
 tplh_pred = tplh_clf.predict(df_sc)
-st.subheader('Low-High Propagation Prediction')
-st.write(tplh_pred)
-st.write(((tplh_pred+data.tplh.min())*(data.tplh.max()-data.tplh.min()))*(10**12))
+
+predicoes = pd.DataFrame([[tphl_pred, tplh_pred, iint_pred]])
+valores = scaler_NOR.inverse_transform(predicoes)
+
+st.subheader('High-Low Propagation Prediction (10^-11)')
+st.write(valores[0,0]*(10**11))
+
+st.subheader('Low-High Propagation Prediction (10^-11)')
+st.write(valores[0,1]*(10**11))
+
+st.subheader('Energy Prediction (10^-15)')
+st.write(valores[0,2]*(10**15))

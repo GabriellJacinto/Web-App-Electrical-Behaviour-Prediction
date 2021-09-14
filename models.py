@@ -1,32 +1,40 @@
 import pandas as pd
 from sklearn.ensemble import RandomForestRegressor
-from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import StandardScaler, MinMaxScaler
 from joblib import dump
 
 df = pd.read_csv('clean_data.csv', index_col='Unnamed: 0')
 
-df_NOR = df.copy()
-df_NOR.iint = (df_NOR.iint-df_NOR.iint.min()) / (df_NOR.iint.max()-df_NOR.iint.min())
-df_NOR.tplh = (df_NOR.tplh-df_NOR.tplh.min())/(df_NOR.tplh.max()-df_NOR.tplh.min())
-df_NOR.tphl = (df_NOR.tphl-df_NOR.tphl.min())/(df_NOR.tphl.max()-df_NOR.tphl.min())
+X = df.drop(columns=['tphl', 'tplh', 'iint'])
+y = df[['tphl', 'tplh', 'iint']]
 
-X = df_NOR.drop(columns=['tphl', 'tplh', 'iint'])
-y = df_NOR[['tphl', 'tplh', 'iint']]
+scaler_NOR = MinMaxScaler().fit(y)
+y_sc = scaler_NOR.transform(y)
+y_sc = pd.DataFrame(y_sc)
 
-scaler = StandardScaler().fit(X)
-X_sc = scaler.transform(X)
+scaler_SC = StandardScaler().fit(X)
+X_sc = scaler_SC.transform(X)
+
+
 seed = 42
 
+print("[IINT] Starting...")
 rf_iint = RandomForestRegressor(n_estimators=150, max_depth=15, random_state=seed)
-rf_iint.fit(X_sc, y.iint)
+rf_iint.fit(X_sc, y_sc[2])
+print("[IINT] Done")
 
+print("[TPHL] Starting...")
 rf_tphl = RandomForestRegressor(n_estimators=25, max_depth=10,random_state=seed)
-rf_tphl.fit(X_sc, y.tphl)
+rf_tphl.fit(X_sc, y_sc[0])
+print("[TPHL] Done")
 
+print("[TPLH] Starting...")
 rf_tplh = RandomForestRegressor(n_estimators=150,max_depth=10,random_state=seed)
-rf_tplh.fit(X_sc, y.tplh)
+rf_tplh.fit(X_sc, y_sc[1])
+print("[TPLH] Done")
 
-
-dump(rf_iint, 'iint.gz', compress=3)
+dump(scaler_NOR, 'scaler_NOR.gz', compress=3)
+dump(scaler_SC, 'scaler_SC.gz', compress=3)
+dump(rf_iint, 'iint.gz', compress=5)
 dump(rf_tphl, 'tphl.gz', compress=3)
 dump(rf_tplh, 'tplh.gz', compress=3)
