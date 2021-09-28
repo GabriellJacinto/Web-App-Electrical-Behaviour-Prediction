@@ -2,7 +2,6 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 from joblib import load
-from sklearn.preprocessing import StandardScaler, MinMaxScaler
 
 st.write("""
 # Electrical Characterization Prediction
