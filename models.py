@@ -1,5 +1,5 @@
 import pandas as pd
-from sklearn.ensemble import RandomForestRegressor
+from sklearn.tree import DecisionTreeRegressor
 from sklearn.preprocessing import StandardScaler, MinMaxScaler
 from joblib import dump
 
@@ -19,17 +19,17 @@ X_sc = scaler_SC.transform(X)
 seed = 42
 
 print("[IINT] Starting...")
-rf_iint = RandomForestRegressor(n_estimators=150, max_depth=15, random_state=seed)
+rf_iint = DecisionTreeRegressor(max_depth=15, random_state=seed)
 rf_iint.fit(X_sc, y_sc[2])
 print("[IINT] Done")
 
 print("[TPHL] Starting...")
-rf_tphl = RandomForestRegressor(n_estimators=25, max_depth=10,random_state=seed)
+rf_tphl = DecisionTreeRegressor(max_depth=10,random_state=seed)
 rf_tphl.fit(X_sc, y_sc[0])
 print("[TPHL] Done")
 
 print("[TPLH] Starting...")
-rf_tplh = RandomForestRegressor(n_estimators=150,max_depth=10,random_state=seed)
+rf_tplh = DecisionTreeRegressor(max_depth=10,random_state=seed)
 rf_tplh.fit(X_sc, y_sc[1])
 print("[TPLH] Done")
 
